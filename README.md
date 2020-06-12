@@ -142,3 +142,21 @@ let tabela = <HTMLTableElement>document.querySelector("table");
 ```
 
 No caso estamos atribuído a variável tabela o um objeto do DOM com tipo `HTMLTableElemet`.
+
+**Tipagem em métodos**
+
+Na classe a seguir temos dois métodos com objetivos e retornos diferentes, no método `adiciona()` por exemplo estamos atribuindo um valor ao array de Negociação onde não a retorno e o TypeScript possibilita informarmos o tipo de retorno void na sua assinatura o que qualquer tentativa de retorno mostrara um erro em momento de compilação. Já no método `paraArray()` informamos que o tipo de retorno é um array de Negociação o qual podemos usar de recursos para mantermos seguro o nosso código sem perder a facilidade de autocompletar.
+
+```tsx
+class Negociacoes {
+  private _negociacoes: Negociacao[] = [];
+
+  adiciona(negociacao: Negociacao): void {
+    this._negociacoes.push(negociacao);
+  }
+
+  get paraArray(): Negociacao[] {
+    return [].concat(this._negociacoes);
+  }
+}
+```
