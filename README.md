@@ -160,3 +160,95 @@ class Negociacoes {
   }
 }
 ```
+
+**Tipo genérico**
+
+No TypeScript também é possível aproveitar do conceito de genéricos que à em outras linguagens orientadas a objeto como Java e C#. Observe a seguir as três classes sem genérico.
+
+```tsx
+class View {
+  protected _elemento: Element;
+
+  constructor(seletor: string) {
+    this._elemento = document.querySelector(seletor);
+  }
+}
+
+class MensagemView extends View {
+  update(model: string): void {
+    this._elemento.innerHTML = this.template(model);
+  }
+
+  template(model: string): string {
+    return `<p class="alert alert-info">${model}</p>`;
+  }
+}
+
+class NegociacoesView extends View {
+  update(model: Negociacoes): void {
+    this._elemento.innerHTML = this.template(model);
+  }
+
+  template(model: Negociacoes): string {
+    return `... implementação extra ...`;
+  }
+}
+```
+
+Podemos observar que tanto `MensagemView` quanto `NegociacoesView` estendem da classe View reaproveitando o atributo e o construtor. E se observarmos melhor não notamos mais coisas que poderiam ser reaproveitadas como o método update e o template? Outra coisa a ser observada é que a unica diferença entre os métodos das classes é os tipos passados por parâmetros nos métodos. Veja a implementação a seguir utilizando o _tipo genérico_ ou _generics_.
+
+```tsx
+class View<T> {
+  private _elemento: Element;
+
+  constructor(seletor: string) {
+    this._elemento = document.querySelector(seletor);
+  }
+
+  update(model: T): void {
+    this._elemento.innerHTML = this.template(model);
+  }
+
+  template(model: T): string {
+    throw new Error("Deve ser implementado o método.");
+  }
+}
+
+class MensagemView extends View<string> {
+  template(model: string): string {
+    return `<p class="alert alert-info">${model}</p>`;
+  }
+}
+
+class NegociacoesView extends View<Negociacoes> {
+  template(model: Negociacoes): string {
+    return `
+	     ... implementação extra ...  
+    `;
+  }
+}
+```
+
+Notem agora que na classe pai tem um `<T>` em sua declaração. Esse `<>` indica que ao expender será necessário informar o _tipo genérico_ utilizado e onde o `T` estiver na classe assumira o tipo passado via `extends`. Com isso, podemos perceber que o método `update` foi totalmente reaproveitado e o `template` sobrescrito nas classes filhas. Outro ponto não menos importante é que como as responsabilidades subiram para a classe pai não é mais necessário declarar o atributo `_elemento` como `protected` retirando a flexibilização.
+
+**Classes e métodos abstratos**
+
+Outro recuso da orientação a objetos também implementado pelo TypeScript é a utilização de classes abstratas. Veja o exemplo a seguir:
+
+```tsx
+abstract class View<T> {
+  private _elemento: Element;
+
+  constructor(seletor: string) {
+    this._elemento = document.querySelector(seletor);
+  }
+
+  update(model: T): void {
+    this._elemento.innerHTML = this.template(model);
+  }
+
+  abstract template(model: T): string;
+}
+```
+
+A criação das classes ou métodos abstratos nos permite enrijecer nosso código não permitindo instanciar uma classe que não pode ser instanciada e esse é o caso da classe `View` que necessita de um `template` para executar o método `update`. Já nos métodos uma opção utilizada no _ES6_ é criar um método com um retorno de um erro com uma mensagem que será identificada em tempo de execução, mas com o TypeScript e o uso da palavra chave `abstract` no inicio do método sem o corpo acaba obrigando em momento de desenvolvimento a implementação do método.
