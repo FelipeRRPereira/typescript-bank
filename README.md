@@ -62,7 +62,8 @@ Outro ponto importante é que todo projeto TypeScript tem que ter um arquivo tsc
   "compilerOptions": {
     "target": "ES6", // Compilação feita para EcmaScript 6
     "outDir": "app/js", // Pastas de saída da compilação
-    "noEmitOnError": true // Trava para somente gerar os arquivos se não existir erros na compilação do projeto
+    "noEmitOnError": true, // Trava para somente gerar os arquivos se não existir erros na compilação do projeto
+    "removeComments": true // Remove qualquer comentario feito no arquivo TypeScript
   },
   "include": [
     "app/ts/**/*" // Pasta de entrada onde serão compilados os arquivos TypeScript
@@ -95,7 +96,8 @@ Para mudar set a seguinte configuração no `tsconfig.json`:
     "target": "ES6",
     "outDir": "app/js",
     "noEmitOnError": true,
-    "noImplicitAny": true // AQUI
+    "noImplicitAny": true, // AQUI
+		"removeComments": true
   },
 ```
 
@@ -252,3 +254,78 @@ abstract class View<T> {
 ```
 
 A criação das classes ou métodos abstratos nos permite enrijecer nosso código não permitindo instanciar uma classe que não pode ser instanciada e esse é o caso da classe `View` que necessita de um `template` para executar o método `update`. Já nos métodos uma opção utilizada no _ES6_ é criar um método com um retorno de um erro com uma mensagem que será identificada em tempo de execução, mas com o TypeScript e o uso da palavra chave `abstract` no inicio do método sem o corpo acaba obrigando em momento de desenvolvimento a implementação do método.
+
+**TypeScript Definitions**
+
+Em dado momento do nosso projeto resolvemos utilizar a lib JQuery para manipular o DOM de forma menos verbosa. Porém, como o nosso projeto utiliza TypeScript notamos que teremos erros de compilação se não utilizarmos uma forma para silenciar nosso corretor. Observe a variavel `$` declarada como `any` na primeira linha, a qual é utilizada para buscar um seletor do DOM. Porém essa pratica acaba comprometendo funcionalidades que o TypeScript nos fornece, como o autocomplete e descrição dos métodos.
+
+```tsx
+declare var $: any;
+abstract class View<T> {
+  private _elemento: any;
+
+  constructor(seletor: string) {
+    this._elemento = $(seletor);
+  }
+
+  update(model: T): void {
+    this._elemento.html = this.template(model);
+  }
+
+  abstract template(model: T): string;
+}
+```
+
+Para solucionar esse problema utiliza-se um arquivo chamado TypeScript Declaration File que armazena informações dos nomes dos métodos, funções e tipos que podem ser utilizados pelo TypeScript. A unica coisa que precisamos fazer é instalar os types da lib utilizada. Veja o exemplo da lib JQuery:
+
+```powershell
+npm install @types/jquery --save-dev
+```
+
+Agora observe como ficara o código utilizando os TypeScript Definitions:
+
+```tsx
+abstract class View<T> {
+  private _elemento: JQuery;
+
+  constructor(seletor: string) {
+    this._elemento = $(seletor);
+  }
+
+  update(model: T): void {
+    this._elemento.html(this.template(model));
+  }
+
+  abstract template(model: T): string;
+}
+
+class NegociacaoController {
+  private _inputData: JQuery;
+  private _inputQuantidade: JQuery;
+  private _inputValor: JQuery;
+  private _negociacoes = new Negociacoes();
+  private _negociacoesView = new NegociacoesView("#negociacoesView");
+  private _mensagemView = new MensagemView("#mensagemView");
+
+  constructor() {
+    this._inputData = $("#data");
+    this._inputQuantidade = $("#quantidade");
+    this._inputValor = $("#valor");
+    this._negociacoesView.update(this._negociacoes);
+  }
+
+  adiciona(event: Event) {
+    event.preventDefault();
+
+    const negociacao = new Negociacao(
+      new Date(this._inputData.val().toString().replace(/-/g, ",")),
+      parseInt(this._inputQuantidade.val().toString()),
+      parseFloat(this._inputValor.val().toString())
+    );
+
+    ... sequencia da implementação ...
+  }
+}
+```
+
+Nas classes de exemplo acima utilizamos os types do JQuery sem perder nada das vantagens do TypeScript.
