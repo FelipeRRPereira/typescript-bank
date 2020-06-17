@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/FelipeRRPereira/typescript-bank#readme",
   "devDependencies": {
+    "@types/jquery": "^3.3.38",
     "typescript": "^3.9.5"
   }
 }
