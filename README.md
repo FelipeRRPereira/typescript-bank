@@ -329,3 +329,161 @@ class NegociacaoController {
 ```
 
 Nas classes de exemplo acima utilizamos os types do JQuery sem perder nada das vantagens do TypeScript.
+
+**Namespaces**
+
+No TypeScript é possível utilizar o *namespace* como recurso para agrupar classes. Veja a seguir:
+
+```tsx
+namespace Views {
+  export abstract class View<T> {
+    private _elemento: JQuery;
+  
+    constructor(seletor: string) {
+      this._elemento = $(seletor);
+    }
+  
+    update(model: T): void {
+      this._elemento.html(this.template(model));
+    }
+  
+    abstract template(model: T): string;
+  }
+}
+
+Views.View...
+```
+
+No código acima é possível notar que ao escrever a *namespace Views* o editor já sugere as classes que são exportadas de dentro da *namespace*.
+
+**Namespace ES2015**
+
+Já no ES2015 as *namespace* foram simplificadas da seguinte forma.
+
+```tsx
+import { View } from './View';
+
+export class MensagemView extends View<string> {
+  template(model: string): string {
+    return `<p class="alert alert-info">${model}</p>`;
+  }
+}
+```
+
+Note que a palavra reservada *export* na classe dando a possibilidade de ser importada em qualquer outro arquivo com o `import {} from './...'`.
+
+**Carregamento de módulos**
+
+Para carregar os módulos sem a necessidade de importa-los no  *HTML* como a seguir o TypeScript nós permite carregar configurações através do `tsconfig.json` onde vamos adicionar um *module* *loader* chamado `System.js`.
+
+```html
+...
+    <script src="lib/jquery.min.js"></script>
+    <script src="js/models/Negociacao.js"></script>
+    <script src="js/models/Negociacoes.js"></script>
+    <script src="js/controllers/NegociacaoController.js"></script>
+    <script src="js/views/View.js"></script>
+    <script src="js/views/NegociacoesView.js"></script>
+    <script src="js/views/MensagemView.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
+```
+
+Arquivo `tsconfig.json`.
+
+```json
+{
+  "compilerOptions": {
+    ...
+    "module": "system"
+  },
+  "include": [
+    "app/ts/**/*"
+  ]
+}
+```
+
+Ao adicionar o módulo no `tsconfig.json` é necessário indicar onde deve ser carregados os arquivos JavaScript.
+
+```html
+...
+<script src="lib/jquery.min.js"></script>
+<script src="lib/system.js"></script>
+<script>
+    System.defaultJSExtensions = true;
+    System.import("js/app.js").catch(err => console.error(err));
+</script>
+...
+```
+
+Note que existe uma configuração `System.defaultJSExtensions = true`
+
+**Servidor Local**
+
+Utilizado para carregamento de paginas ao atualizar código JavaScript.
+
+```bash
+npm install lite-server --save-dev
+```
+
+Para utilizar basta atulizar o `package.json` informando o local a ser executado o servidor. Observe abaixo:
+
+```json
+...
+"scripts": {
+    "compile": "tsc",
+    "start": "tsc -w",
+    "server": "lite-server --baseDir=app"
+  },
+...
+```
+
+Adicionado opção `server` no scripts informando a `baseDir` a ser executada e para rodar a execução do *server* basta rodar o comando abaixo via *terminal:*
+
+```powershell
+npm run server 
+```
+
+Para obter o beneficio de recopilação e execução do código no browser é necessário rodar também o seguinte comando necessitando ter dois terminais abertos.
+
+```powershell
+npm start
+```
+
+Para resolver a questão de executar em terminais separados dois comandos vamos utilizar uma dependência chamada *concurrently.*
+
+**Concurrently Dependeces**
+
+```powershell
+npm install concurrently --save-dev
+```
+
+Após a instalação é necessário configurar a execução do binário com os dois outros *scripts*. Note abaixo que alteramos o `start` para `watch` e criamos um novo start fazendo uso da nova dependência.
+
+```json
+...
+"scripts": {
+    "compile": "tsc",
+    "watch": "tsc -w",
+    "server": "lite-server --baseDir=app",
+    "start": "concurrently \"npm run watch\" \"npm run server\""
+  },
+...
+```
+
+**Barrel**
+
+Para facilitar a importação dos módulos é possível adotar uma estratégia que condensa tudo dentro de um barril. Com isso, vamos criar um `models/index.ts` dentro das pastas que desejamos condensar.
+
+```tsx
+export * from "./Negociacao";
+export * from "./Negociacoes";
+```
+
+Após é só importar nos arquivos necessários da seguinte forma:
+
+```tsx
+import { Negociacoes, Negociacao } from '../models/index';
+```
