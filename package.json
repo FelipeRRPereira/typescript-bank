@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "tsc -w"
+    "watch": "tsc -w",
+    "server": "lite-server --baseDir=app",
+    "start": "concurrently \"npm run watch\" \"npm run server\""
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,8 @@
   "homepage": "https://github.com/FelipeRRPereira/typescript-bank#readme",
   "devDependencies": {
     "@types/jquery": "^3.3.38",
+    "concurrently": "^5.3.0",
+    "lite-server": "^2.5.4",
     "typescript": "^3.9.5"
   }
 }
