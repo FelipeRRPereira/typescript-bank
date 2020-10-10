@@ -487,3 +487,89 @@ Após é só importar nos arquivos necessários da seguinte forma:
 ```tsx
 import { Negociacoes, Negociacao } from '../models/index';
 ```
+
+**Readonly**
+
+Para acessar atributos declarados como *private* precisamos criar os *gettes*, porém no *TypeScript* podemos usar uma propriedade chamada *readonly*.
+
+```tsx
+export class Negociacao {
+  constructor(
+    readonly data: Date,
+    readonly quantidade: number,
+    readonly valor: number
+  ) {}
+
+  get volume() {
+    return this.quantidade * this.valor;
+  }
+}
+```
+
+**Parâmetros opcionais**
+
+No *TypeScript* temos o recurso de declararmos parâmetros opcionais no construtor da classe, possibilitando flexibilidade na adição de novas funcionalidades. Veja a seguir:
+
+```tsx
+...
+constructor(seletor: string, escape?: boolean) {
+  this._elemento = $(seletor);
+  this._escape = escape;
+}
+...
+```
+
+Único cuidado necessário é que devemos declarar os parâmetros opcionais sempre por último. Caso não for tido o cuidado será mostrado um erro.
+
+**StrictNullChecks**
+
+O modo *strictNullChecks* é uma propriedade do *TypeScript* que passa a não aceitar com que variáveis tipadas recebam *null* ou *undefined.* Para utilizar o recurso basta adicionar a seguinte configuração:
+
+```tsx
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "outDir": "app/js",
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "module": "system",
+    "strictNullChecks": true
+  },
+  "include": [
+    "app/ts/**/*"
+  ]
+}
+```
+
+**Enums**
+
+No *TypeScript* e possível a utilização de *enums* que são tipos abstratos com valores atribuídos a cada elemento com identificadores. Veja a seguir:
+
+```tsx
+enum DiaDaSemana {
+  Domingo,
+  Segunda,
+  Terca,
+  Quarta,
+  Quinta,
+  Sexta,
+  Sabado
+}
+```
+
+Note o uso do *enum* no exemplo a seguir, onde verificamos se o dia é um dia útil.
+
+```tsx
+export class NegociacaoController {
+  ...
+	private _ehDiaUtil(data: Date) {
+    return (
+      data.getDay() != DiaDaSemana.Sabado &&
+      data.getDay() != DiaDaSemana.Domingo
+    );
+  }
+}
+```
+
+Olhando a [documentação](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay) do `Date.getDay` podemos perceber que o método retorna um *number* para cada dia da semana sendo que o 0 representa o Domingo. O mesmo é comparado com o *enum* que segue a mesma regra se não for atribuido nenhum valor de ponteiro, retornando *true* ou *false* se for sábado ou domingo.
