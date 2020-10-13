@@ -1,5 +1,5 @@
+import { Negociacao, Negociacoes } from "../models/index";
 import { MensagemView, NegociacoesView } from "../views/index";
-import { Negociacoes, Negociacao } from "../models/index";
 
 export class NegociacaoController {
   private _inputData: JQuery;
@@ -16,21 +16,20 @@ export class NegociacaoController {
     this._negociacoesView.update(this._negociacoes);
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   adiciona(event: Event) {
     event.preventDefault();
 
-    const data = new Date(this._inputData.val()?.toString().replace(/-/g, ",") || '');
+    const data = new Date(this._inputData.val()?.toString().replace(/-/g, ",") || "");
     if (!this._ehDiaUtil(data)) {
-      this._mensagemView.update(
-        "Somente negociações em dias úteis, por favor!"
-      );
+      this._mensagemView.update("Somente negociações em dias úteis, por favor!");
       return;
     }
 
     const negociacao = new Negociacao(
       data,
-      parseInt(this._inputQuantidade.val()?.toString() || ''),
-      parseFloat(this._inputValor.val()?.toString() || '')
+      parseInt(this._inputQuantidade.val()?.toString() || ""),
+      parseFloat(this._inputValor.val()?.toString() || "")
     );
 
     this._negociacoes.adiciona(negociacao);
@@ -40,10 +39,7 @@ export class NegociacaoController {
   }
 
   private _ehDiaUtil(data: Date) {
-    return (
-      data.getDay() != DiaDaSemana.Sabado &&
-      data.getDay() != DiaDaSemana.Domingo
-    );
+    return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
   }
 }
 
@@ -54,5 +50,5 @@ enum DiaDaSemana {
   Quarta,
   Quinta,
   Sexta,
-  Sabado
+  Sabado,
 }

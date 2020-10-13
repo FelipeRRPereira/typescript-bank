@@ -1,5 +1,5 @@
-import { View } from './index';
 import { Negociacoes } from "../models/index";
+import { View } from "./index";
 
 export class NegociacoesView extends View<Negociacoes> {
   template(model: Negociacoes): string {
@@ -35,7 +35,7 @@ export class NegociacoesView extends View<Negociacoes> {
 
         <tfoot>
         </tfoot>
-      </table>    
+      </table>
     `;
   }
 }
