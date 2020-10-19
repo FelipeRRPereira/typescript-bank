@@ -121,11 +121,7 @@ OU
 
 ```tsx
 class Negociacao {
-  constructor(
-    private _data: Date,
-    private _quantidade: number,
-    private _valor: number
-  ) {}
+  constructor(private _data: Date, private _quantidade: number, private _valor: number) {}
 }
 ```
 
@@ -332,21 +328,21 @@ Nas classes de exemplo acima utilizamos os types do JQuery sem perder nada das v
 
 **Namespaces**
 
-No TypeScript é possível utilizar o *namespace* como recurso para agrupar classes. Veja a seguir:
+No TypeScript é possível utilizar o _namespace_ como recurso para agrupar classes. Veja a seguir:
 
 ```tsx
 namespace Views {
   export abstract class View<T> {
     private _elemento: JQuery;
-  
+
     constructor(seletor: string) {
       this._elemento = $(seletor);
     }
-  
+
     update(model: T): void {
       this._elemento.html(this.template(model));
     }
-  
+
     abstract template(model: T): string;
   }
 }
@@ -354,14 +350,14 @@ namespace Views {
 Views.View...
 ```
 
-No código acima é possível notar que ao escrever a *namespace Views* o editor já sugere as classes que são exportadas de dentro da *namespace*.
+No código acima é possível notar que ao escrever a _namespace Views_ o editor já sugere as classes que são exportadas de dentro da _namespace_.
 
 **Namespace ES2015**
 
-Já no ES2015 as *namespace* foram simplificadas da seguinte forma.
+Já no ES2015 as _namespace_ foram simplificadas da seguinte forma.
 
 ```tsx
-import { View } from './View';
+import { View } from "./View";
 
 export class MensagemView extends View<string> {
   template(model: string): string {
@@ -370,11 +366,11 @@ export class MensagemView extends View<string> {
 }
 ```
 
-Note que a palavra reservada *export* na classe dando a possibilidade de ser importada em qualquer outro arquivo com o `import {} from './...'`.
+Note que a palavra reservada _export_ na classe dando a possibilidade de ser importada em qualquer outro arquivo com o `import {} from './...'`.
 
 **Carregamento de módulos**
 
-Para carregar os módulos sem a necessidade de importa-los no  *HTML* como a seguir o TypeScript nós permite carregar configurações através do `tsconfig.json` onde vamos adicionar um *module* *loader* chamado `System.js`.
+Para carregar os módulos sem a necessidade de importa-los no _HTML_ como a seguir o TypeScript nós permite carregar configurações através do `tsconfig.json` onde vamos adicionar um _module_ _loader_ chamado `System.js`.
 
 ```html
 ...
@@ -412,8 +408,8 @@ Ao adicionar o módulo no `tsconfig.json` é necessário indicar onde deve ser c
 <script src="lib/jquery.min.js"></script>
 <script src="lib/system.js"></script>
 <script>
-    System.defaultJSExtensions = true;
-    System.import("js/app.js").catch(err => console.error(err));
+  System.defaultJSExtensions = true;
+  System.import("js/app.js").catch((err) => console.error(err));
 </script>
 ...
 ```
@@ -440,10 +436,10 @@ Para utilizar basta atulizar o `package.json` informando o local a ser executado
 ...
 ```
 
-Adicionado opção `server` no scripts informando a `baseDir` a ser executada e para rodar a execução do *server* basta rodar o comando abaixo via *terminal:*
+Adicionado opção `server` no scripts informando a `baseDir` a ser executada e para rodar a execução do _server_ basta rodar o comando abaixo via _terminal:_
 
 ```powershell
-npm run server 
+npm run server
 ```
 
 Para obter o beneficio de recopilação e execução do código no browser é necessário rodar também o seguinte comando necessitando ter dois terminais abertos.
@@ -452,7 +448,7 @@ Para obter o beneficio de recopilação e execução do código no browser é ne
 npm start
 ```
 
-Para resolver a questão de executar em terminais separados dois comandos vamos utilizar uma dependência chamada *concurrently.*
+Para resolver a questão de executar em terminais separados dois comandos vamos utilizar uma dependência chamada _concurrently._
 
 **Concurrently Dependeces**
 
@@ -460,7 +456,7 @@ Para resolver a questão de executar em terminais separados dois comandos vamos 
 npm install concurrently --save-dev
 ```
 
-Após a instalação é necessário configurar a execução do binário com os dois outros *scripts*. Note abaixo que alteramos o `start` para `watch` e criamos um novo start fazendo uso da nova dependência.
+Após a instalação é necessário configurar a execução do binário com os dois outros _scripts_. Note abaixo que alteramos o `start` para `watch` e criamos um novo start fazendo uso da nova dependência.
 
 ```json
 ...
@@ -485,20 +481,16 @@ export * from "./Negociacoes";
 Após é só importar nos arquivos necessários da seguinte forma:
 
 ```tsx
-import { Negociacoes, Negociacao } from '../models/index';
+import { Negociacoes, Negociacao } from "../models/index";
 ```
 
 **Readonly**
 
-Para acessar atributos declarados como *private* precisamos criar os *gettes*, porém no *TypeScript* podemos usar uma propriedade chamada *readonly*.
+Para acessar atributos declarados como _private_ precisamos criar os _gettes_, porém no _TypeScript_ podemos usar uma propriedade chamada _readonly_.
 
 ```tsx
 export class Negociacao {
-  constructor(
-    readonly data: Date,
-    readonly quantidade: number,
-    readonly valor: number
-  ) {}
+  constructor(readonly data: Date, readonly quantidade: number, readonly valor: number) {}
 
   get volume() {
     return this.quantidade * this.valor;
@@ -508,7 +500,7 @@ export class Negociacao {
 
 **Parâmetros opcionais**
 
-No *TypeScript* temos o recurso de declararmos parâmetros opcionais no construtor da classe, possibilitando flexibilidade na adição de novas funcionalidades. Veja a seguir:
+No _TypeScript_ temos o recurso de declararmos parâmetros opcionais no construtor da classe, possibilitando flexibilidade na adição de novas funcionalidades. Veja a seguir:
 
 ```tsx
 ...
@@ -523,7 +515,7 @@ constructor(seletor: string, escape?: boolean) {
 
 **StrictNullChecks**
 
-O modo *strictNullChecks* é uma propriedade do *TypeScript* que passa a não aceitar com que variáveis tipadas recebam *null* ou *undefined.* Para utilizar o recurso basta adicionar a seguinte configuração:
+O modo _strictNullChecks_ é uma propriedade do _TypeScript_ que passa a não aceitar com que variáveis tipadas recebam _null_ ou _undefined._ Para utilizar o recurso basta adicionar a seguinte configuração:
 
 ```tsx
 {
@@ -544,7 +536,7 @@ O modo *strictNullChecks* é uma propriedade do *TypeScript* que passa a não ac
 
 **Enums**
 
-No *TypeScript* e possível a utilização de *enums* que são tipos abstratos com valores atribuídos a cada elemento com identificadores. Veja a seguir:
+No _TypeScript_ e possível a utilização de _enums_ que são tipos abstratos com valores atribuídos a cada elemento com identificadores. Veja a seguir:
 
 ```tsx
 enum DiaDaSemana {
@@ -554,11 +546,11 @@ enum DiaDaSemana {
   Quarta,
   Quinta,
   Sexta,
-  Sabado
+  Sabado,
 }
 ```
 
-Note o uso do *enum* no exemplo a seguir, onde verificamos se o dia é um dia útil.
+Note o uso do _enum_ no exemplo a seguir, onde verificamos se o dia é um dia útil.
 
 ```tsx
 export class NegociacaoController {
@@ -572,4 +564,127 @@ export class NegociacaoController {
 }
 ```
 
-Olhando a [documentação](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay) do `Date.getDay` podemos perceber que o método retorna um *number* para cada dia da semana sendo que o 0 representa o Domingo. O mesmo é comparado com o *enum* que segue a mesma regra se não for atribuido nenhum valor de ponteiro, retornando *true* ou *false* se for sábado ou domingo.
+Olhando a [documentação](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay) do `Date.getDay` podemos perceber que o método retorna um _number_ para cada dia da semana sendo que o 0 representa o Domingo. O mesmo é comparado com o _enum_ que segue a mesma regra se não for atribuido nenhum valor de ponteiro, retornando _true_ ou _false_ se for sábado ou domingo.
+
+**Decorators**
+
+Outra funcionalidade para criação de logs ou teste de performance é o Decorators. Por enquanto, uma proposta em estagio 2 que pode ser utilizada como recurso experimental no TypeScript. Veja como abilita-la a seguir:
+
+```json
+{
+  "compilerOptions": {
+    ...,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "app/ts/**/*"
+  ]
+}
+```
+
+Os decorators são formas de sobrescrever a função a ser executada utilizando a notação `@nome-do-decorator` acima da função a qual deseja sobrescreve, possibilitando assim executar algo de forma adicional. Um exemplo de uso é testar a performance de execução de determinada função. Veja a seguir:
+
+```tsx
+export const logarTempoDeExecucao = (emSegundos = false) => (
+  _target: unknown,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) => {
+  const metodoOriginal = descriptor.value;
+
+  descriptor.value = function (...args: unknown[]) {
+    let divisor = 1;
+    let unidade = "milisegundos";
+    if (emSegundos) {
+      divisor = 1000;
+      unidade = "segundos";
+    }
+
+    console.log("-----------------------");
+    console.log(`Parâmetros do método ${propertyKey}: ${JSON.stringify(args)}`);
+    const t1 = performance.now();
+    const resultado = metodoOriginal.apply(this, args);
+
+    console.log(`Resultado do método: ${JSON.stringify(resultado)}`);
+    const t2 = performance.now();
+
+    console.log(`${propertyKey} demorou ${(t2 - t1) / divisor} ${unidade}`);
+    console.log("-----------------------");
+
+    return resultado;
+  };
+
+  return descriptor;
+};
+```
+
+Em um primeiro momento parece algo complexo, porém se você olhar com atenção vai perceber que é apenas uma função retornando outra, guardando a função a ser sobrescrita em uma variável e sobrescrevendo a mesma com as novas funcionalidades e executando a original no meio. Isso permite que você utilize um código de medidor de performance em qualquer função. Para uso do _decorator_ veja a seguir:
+
+```tsx
+import { logarTempoDeExecucao } from "../helpers/decorators/index";
+
+export abstract class View<T> {
+  ...
+  @logarTempoDeExecucao(true)
+  update(model: T): void {
+    ...
+  }
+	...
+}
+```
+
+**Lazy Loading com Decorators**
+
+_Lazy loading_ é um padrão de projeto utilizado para adiar a inicialização de um objeto até que ele seja realmente usado. Veremos esse conceito aplicado com o _Decorators_ em propriedades. Veja a seguir:
+
+```tsx
+export const domInject = (selector: string) => (target: unknown, key: string): void => {
+  let elemento: JQuery;
+  const getter = () => {
+    if (!elemento) {
+      console.log(`Buscando ${selector} para injetar em ${key}`);
+      elemento = $(selector);
+    }
+    return elemento;
+  };
+
+  Object.defineProperty(target, key, {
+    get: getter,
+  });
+};
+```
+
+Na primeira função é passado o nome do _seletor_ que queremos encontrar na _DOM_. Na segunda função temos a declaração da variável elemento do tipo _JQuery_. Se a mesma não existir é associado o seletor informado ao elemento que é retornado para `const getter`. Para que o elemento seja acessado via get é necessário definir sua propriedade via `Object.defineProperty` passando _target_, _key_ e _get_.
+
+**Decorators em Classes**
+
+No TypeScript também temos a possibilidade de implementar decorators em classes, sobrescrevendo o construtor da mesma. Veja exemplo:
+
+```tsx
+export function meuDecoratorDeClasse() {
+  return function (constructor: any) {
+    // guarda o constructor original, pois iremos definir um novo
+    const original = constructor;
+
+    // cria um novo constructor. Como ele pode receber nenhum ou mais parâmetros,
+    //usamos ...args: any[]
+    const novo: any = function (...args: any[]) {
+      console.log("Criando uma instância com New: " + original.name);
+      // cria a instância da classe quando for chamado
+      return new original(...args);
+    };
+
+    // importante! O prototype do novo constructor deve ser o mesmo do original
+    novo.prototype = original.prototype;
+
+    // retorna o novo constructor
+    return novo;
+  };
+}
+
+// para adicionar na classe
+@meuDecoratorDeClasse()
+export class NegociacaoController {
+  // código omitido
+}
+```
