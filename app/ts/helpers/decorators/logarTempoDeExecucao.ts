@@ -2,7 +2,7 @@ export const logarTempoDeExecucao = (emSegundos = false) => (
   _target: unknown,
   propertyKey: string,
   descriptor: PropertyDescriptor
-) => {
+): PropertyDescriptor => {
   const metodoOriginal = descriptor.value;
 
   descriptor.value = function (...args: unknown[]) {
