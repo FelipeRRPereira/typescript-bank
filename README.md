@@ -688,3 +688,212 @@ export class NegociacaoController {
   // código omitido
 }
 ```
+
+**Interface para Definição de Atributos**
+
+Interface é um recurso bastante conhecido em outras em outras linguagens de programação e em TypeScript também pode ser aproveitado os benefícios do seu uso, podendo definir o esqueleto de dados recebidos via API. Veja o exemplo:
+
+```tsx
+export interface NegociacaoParcial {
+  vezes: number;
+  montante: number;
+}
+
+export class NegociacaoController {
+  ...
+  importarDados(): void {
+    const isOk = (res: Response) => {
+      if (res.ok) {
+        return res;
+      } else {
+        throw new Error(res.statusText);
+      }
+    };
+    fetch("http://localhost:8080/dados")
+      .then((res) => isOk(res))
+      .then((res) => res.json())
+      .then((dados: NegociacaoParcial[]) => {
+        dados
+          .map((dado) => new Negociacao(new Date(), dado.vezes, dado.montante))
+          .forEach((negociacao) => this._negociacoes.adiciona(negociacao));
+        this._negociacoesView.update(this._negociacoes);
+      })
+      .catch((err) => console.log(err.message));
+  }
+}
+```
+
+Note que declaramos uma interface chamada `NegociacaoParcial` que é utilizada no `fetch` para definir os dados do _array_ recebido da API.
+
+**Throttle com Decorators**
+
+O Throttle é uma técnica simples de barrar ou evitar que seja feito múltiplas requisições ao _backend_, aquelas situações onde é o usuário clica múltiplas vezes no botão de compra sem "intenção" gerando algum problema e que muitas vezes são tratadas no _backend_. O logica é bem simples, se adiciona um _timeout_ que só efetua a requisição após um tempo determinado sem _click_, se foi clicado varias vezes o _timer_ começa a contar novamente. Veja a seguir:
+
+```tsx
+export const throttle = (milisegundos = 500) => (
+  _target: unknown,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+): PropertyDescriptor => {
+  const metodoOriginal = descriptor.value;
+  let timer = 0;
+
+  descriptor.value = function (...args: unknown[]) {
+    if (event) event.preventDefault();
+    clearInterval(timer);
+    timer = setTimeout(() => metodoOriginal.apply(this, args), milisegundos);
+  };
+
+  return descriptor;
+};
+```
+
+Podemos notar a semelhança com o decorator `logarTempoDeExecucao`, ou seja, usaremos o recurso em um decorator para ser possivel utilizar em qualquer interação de click sem precisarmos utilizar repetição de código. E como já vimos anteriormente, para utilizar o decorator é só adicionar acima do método que deseja o `@nome-do-decorator`.
+
+**Polimorfismo**
+
+No _TypeScript_ também podemos aproveitar dos benefícios do polimorfismo onde criaremos uma classe abstrata chamada `Imprimivel` que será herdada pela classe `Negociacao` e `Negociacoes`. O objetivo desta classe é ditar um padrão de método de impressão de logs no console dos atributos das classes que a herdarem. Veja a seguir:
+
+```tsx
+export abstract class Imprimivel {
+  abstract paraTexto(): void;
+}
+
+export class Negociacao extends Imprimivel {
+  constructor(readonly data: Date, readonly quantidade: number, readonly valor: number) {
+    super();
+  }
+
+  get volume(): number {
+    return this.quantidade * this.valor;
+  }
+
+  paraTexto(): void {
+    console.log("-- paraTexto --");
+    console.log(
+      `Data: ${this.data}
+            Quantidade: ${this.quantidade},
+            Valor: ${this.valor},
+            Volume: ${this.volume}`
+    );
+  }
+}
+```
+
+Precisamos observar a questão do uso do `super()` no construtor ao utilizar herança devido a necessidade de recebermos o construtor da classe pai mesmo sendo "vazio".
+
+**Implementando Interfaces em Classes**
+
+No item anterior, vemos a possibilidade de implementarmos o uso de herança no _TypeScript_, porém, só é possível herdar de uma única classe. Mas, com o uso de interface é possível implementar a mesma ideia sem gastar a herança permitida. Veja a seguir:
+
+```tsx
+import { Igualavel, Imprimivel } from "./index";
+
+export class Negociacao implements Imprimivel, Igualavel<Negociacao> {
+  constructor(readonly data: Date, readonly quantidade: number, readonly valor: number) {}
+
+  get volume(): number {
+    return this.quantidade * this.valor;
+  }
+
+  paraTexto(): void {
+    console.log("-- paraTexto --");
+    console.log(
+      `Data: ${this.data}
+            Quantidade: ${this.quantidade},
+            Valor: ${this.valor},
+            Volume: ${this.volume}`
+    );
+  }
+
+  ehIgual(negociacao: Negociacao): boolean {
+    return (
+      this.data.getDate() == negociacao.data.getDate() &&
+      this.data.getMonth() == negociacao.data.getMonth() &&
+      this.data.getFullYear() == negociacao.data.getFullYear()
+    );
+  }
+}
+```
+
+Note, que utilizando dos recursos de implementações podemos empilhar interfaces obrigando a implementação de métodos comuns sem desperdiçar o recurso de extensão.
+
+**Estendendo Interfaces**
+
+Diferente de classes comuns que podem estender uma única classe, as interfaces podem estender quantas interfaces for necessário, possibilitando agrupar funcionalidades em uma única interface e implementa-la. Veja a seguir:
+
+```tsx
+import { Igualavel, Imprimivel } from "./index";
+
+export interface MeuObjeto<T> extends Imprimivel, Igualavel<T> {}
+
+export class Negociacao implements MeuObjeto<Negociacao> {
+	...
+}
+```
+
+Primeiro, criamos a interface `MeuObjeto` estendendo todas as interfaces necessárias e implementamos a interface na classe `Negociacao`.
+
+**Union Types e Type Guards**
+
+No _TypeScript_ você já deve ter notado que na maioria das vezes precisamos especificar os tipos dos atributos, parâmetros e até mesmo retornos de uma função. Mas temos situações onde o código recebe diferentes tipos como `string` ou `number` e é ai que entram os _Union Types._ Veja a seguir:
+
+```tsx
+const funcaoQualquer = (paramQualquer: string | number) => {};
+```
+
+Mas ao observarmos os tipos recebidos pelo `funcaoQualquer` podemos notar que diferentes funcionalidades se aplicam a cada tipo, exemplo, o tipo `string` tem a função `replace` e o tipo `number` não tem o que pode ocasionar uma não compilação do código e é então que entra o _Type Guards._ Veja a seguir:
+
+```tsx
+const funcaoQualquer = (paramQualquer: string | number) => {
+  if (typeof paramQualquer === "string") {
+    return paramQualquer.replace(/x/g, "y");
+  } else {
+    return paramQualquer.toFixed().replace(/x/g, "y");
+  }
+};
+```
+
+**Type Alias**
+
+Esse recurso nada mais é do que agrupar _Union Types_ deixando o código mais enxuto: Veja o exemplo:
+
+```tsx
+type tipoQualquer = string | number;
+
+const funcaoQualquer = (paramQualquer: tipoQualquer) => {};
+```
+
+**Async/Await**
+
+Esta funcionalidade nos permite adicionar uma espera `await` em um método ou função que retorna uma `promise` sendo possível a travar o processo da função até obter uma resposta. Veja o exemplo:
+
+```tsx
+async importarDados(): Promise<void | Negociacao[]> {
+  try {
+    const negociacoesParaImportar = await this._service.obterNegociacoes((res) => {
+      if (res.ok) {
+        return res;
+      } else {
+        throw new Error(res.statusText);
+      }
+    });
+
+    const negociacoesJaImportadas = this._negociacoes.paraArray;
+
+    negociacoesParaImportar
+      .filter(
+        (negociacao: Negociacao) =>
+          !negociacoesJaImportadas.some((jaImportada)
+						=> negociacao.ehIgual(jaImportada))
+      )
+      .forEach((negociacao: Negociacao) => this._negociacoes.adiciona(negociacao));
+
+    this._negociacoesView.update(this._negociacoes);
+  } catch (err) {
+    this._mensagemView.update(err.message);
+  }
+}
+```
+
+Observe o uso de `try catch` que torna possível obter o retorno de erro no método onde foi adicionado o `await`, o qual pode ser jogado para o usuário.
